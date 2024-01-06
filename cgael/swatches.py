@@ -30,20 +30,20 @@ def sample_swatch(swatch:Swatch, blurriness=0):
         return 1-sample_low()
     match swatch:
         case Swatch.WHITE:
-            return (sample_high(), sample_high(), sample_high())
+            return [sample_high(), sample_high(), sample_high()]
         case Swatch.BLACK:
-            return (sample_low(), sample_low(), sample_low())
+            return [sample_low(), sample_low(), sample_low()]
         case Swatch.RED:
-            return (sample_low(), sample_low(), sample_high())
+            return [sample_low(), sample_low(), sample_high()]
         case Swatch.GREEN:
-            return (sample_low(), sample_high(), sample_low())
+            return [sample_low(), sample_high(), sample_low()]
         case Swatch.BLUE:
-            return (sample_high(), sample_low(), sample_low())
+            return [sample_high(), sample_low(), sample_low()]
         case Swatch.YELLOW:
-            return (sample_low(), sample_high(), sample_high())
+            return [sample_low(), sample_high(), sample_high()]
         case Swatch.CYAN:
-            return (sample_high(), sample_high(), sample_low())
+            return [sample_high(), sample_high(), sample_low()]
         case Swatch.MAGENTA:
-            return (sample_high(), sample_low(), sample_high())
+            return [sample_high(), sample_low(), sample_high()]
         case _:
             raise ValueError(f"Could not sample swatch '{swatch}'.")
