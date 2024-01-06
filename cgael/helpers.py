@@ -1,3 +1,12 @@
+# Math Helper Functions
+
+def lerp(a, b, t):
+    """
+    A simple linear interpolation implementation. 
+    Interpolates between a and b by t.
+    """
+    return (b - a) * t + a
+
 # String Helper Functions
  
 def ischar(token):

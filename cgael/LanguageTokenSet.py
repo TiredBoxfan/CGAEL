@@ -51,7 +51,7 @@ class LanguageTokenSet():
         """
         The number of tokens in the language, including the pad token.
         """
-        return self.encoder.vocabulary_size()
+        return self._encoder.vocabulary_size()
     
     def encode(self, data:str, shape:tuple):
         """
