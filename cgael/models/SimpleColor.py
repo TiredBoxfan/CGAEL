@@ -65,7 +65,7 @@ class SimpleColorGenerator():
     
 
 class SimpleColorModel():
-    def __init__(self, token_set:cgael.LanguageTokenSet, word_count:int, word_length:int, color_count:int=1, color_channels:int=3, listener_embedding_size:int=4, loss=None):
+    def __init__(self, token_set:cgael.LanguageTokenSet, word_count:int, word_length:int, color_count:int=1, color_channels:int=3, listener_embedding_size:int=4, loss=None, brevity_function=None, brevity_weight=1.0):
         self.token_set = token_set
         self.word_count = word_count
         self.word_length = word_length
@@ -73,6 +73,8 @@ class SimpleColorModel():
         self.color_channels = color_channels
 
         self.loss = keras.losses.MeanAbsoluteError() if loss is None else loss
+        self.brevity_function = brevity_function
+        self.brevity_weight = brevity_weight
 
         self.speaker = self._build_speaker()
         self.listener = self._build_listener(listener_embedding_size)
@@ -105,9 +107,12 @@ class SimpleColorModel():
         return keras.Model(x, [z, y])
     
     def _fitness(self, ga_inst, solution, sol_idx):
-        pred = pygad.kerasga.predict(model=self.model, solution=solution, data=self.generator())
-        loss_score = self.loss(self.generator(), pred[1]).numpy()
-        return -loss_score
+        pred_lang, pred_out = pygad.kerasga.predict(model=self.model, solution=solution, data=self.generator())
+        loss_out = self.loss(self.generator(), pred_out).numpy()
+        loss_brevity = 0 if self.brevity_function is None else self.brevity_function(pred_lang).numpy() * self.brevity_weight
+        
+        fitness = -(loss_out + loss_brevity)
+        return fitness
     
     def _generation_callback(self, ga_inst):
         print("Completed Generation:", ga_inst.generations_completed)
