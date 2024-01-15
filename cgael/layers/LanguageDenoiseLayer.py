@@ -37,7 +37,7 @@ def denoise_language(data, do_columns=True):
 
 @tf.keras.utils.register_keras_serializable(package="CGAEL", name="LanguageDenoiseLayer")
 class LanguageDenoiseLayer(tf.keras.layers.Layer):
-    def __init__(self, do_columns):
+    def __init__(self, do_columns=True):
         self.do_columns = do_columns
         super(LanguageDenoiseLayer, self).__init__()
 

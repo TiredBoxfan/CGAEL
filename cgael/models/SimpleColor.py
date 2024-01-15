@@ -140,6 +140,7 @@ class SimpleColorModel():
         # Find best solution.
         print("Identifying best...")
         solution, solution_fitness, solution_idx = ga_inst.best_solution()
+        print("Best fitness:", solution_fitness)
         
         # Set model's weights to best solution.
         solution_weights = pygad.kerasga.model_weights_as_matrix(self.model, solution)
