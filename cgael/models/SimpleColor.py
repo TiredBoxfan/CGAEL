@@ -65,7 +65,7 @@ class SimpleColorGenerator():
     
 
 class SimpleColorModel():
-    def __init__(self, token_set:cgael.LanguageTokenSet, word_count:int, word_length:int, color_count:int=1, color_channels:int=3, listener_embedding_size:int=4, loss=None, brevity_function=None, brevity_weight=1.0):
+    def __init__(self, token_set:cgael.LanguageTokenSet, word_count:int, word_length:int, color_count:int=1, color_channels:int=3, listener_embedding_size:int=4, loss=None, brevity_function=None, brevity_weight=1.0, npy_weights=None):
         self.token_set = token_set
         self.word_count = word_count
         self.word_length = word_length
@@ -79,6 +79,9 @@ class SimpleColorModel():
         self.speaker = self._build_speaker()
         self.listener = self._build_listener(listener_embedding_size)
         self.model = self._build_model(self.speaker, self.listener)
+        
+        if npy_weights is not None:
+            self.load_weights(npy_file=npy_weights)
 
     def _build_speaker(self):
         x = y = layer.Input((self.color_count, self.color_channels))
