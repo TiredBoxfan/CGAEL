@@ -65,7 +65,22 @@ class SimpleColorGenerator():
     
 
 class SimpleColorModel():
-    def __init__(self, token_set:cgael.LanguageTokenSet, word_count:int, word_length:int, color_count:int=1, color_channels:int=3, listener_embedding_size:int=4, loss=None, brevity_function=None, brevity_weight=1.0, npy_weights=None):
+    def __init__(
+            self, 
+            token_set:cgael.LanguageTokenSet, 
+            word_count:int, 
+            word_length:int, 
+            color_count:int=1, 
+            color_channels:int=3, 
+            listener_embedding_size:int=4, 
+            loss=None, 
+            brevity_function=None, 
+            brevity_weight=1.0, 
+            style_function=None,
+            style_weight=1.0,
+            load_npy_weights=None
+        ):
+        
         self.token_set = token_set
         self.word_count = word_count
         self.word_length = word_length
@@ -75,13 +90,15 @@ class SimpleColorModel():
         self.loss = keras.losses.MeanAbsoluteError() if loss is None else loss
         self.brevity_function = brevity_function
         self.brevity_weight = brevity_weight
+        self.style_function = style_function
+        self.style_weight = style_weight
 
         self.speaker = self._build_speaker()
         self.listener = self._build_listener(listener_embedding_size)
         self.model = self._build_model(self.speaker, self.listener)
         
-        if npy_weights is not None:
-            self.load_weights(npy_file=npy_weights)
+        if load_npy_weights is not None:
+            self.load_weights(npy_file=load_npy_weights)
 
     def _build_speaker(self):
         x = y = layer.Input((self.color_count, self.color_channels))
@@ -113,8 +130,9 @@ class SimpleColorModel():
         pred_lang, pred_out = pygad.kerasga.predict(model=self.model, solution=solution, data=self.generator())
         loss_out = self.loss(self.generator(), pred_out).numpy()
         loss_brevity = 0 if self.brevity_function is None else self.brevity_function(pred_lang).numpy() * self.brevity_weight
+        loss_style = 0 if self.style_function is None else self.style_function(pred_lang).numpy() * self.style_weight
         
-        fitness = -(loss_out + loss_brevity)
+        fitness = -(loss_out + loss_brevity + loss_style)
         return fitness
     
     def _generation_callback(self, ga_inst):

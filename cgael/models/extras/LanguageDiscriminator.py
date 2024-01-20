@@ -121,6 +121,23 @@ class LanguageDiscriminatorModel():
     
     def train(self, training_generator:LanguageDiscriminatorGenerator, epochs:int):
         return self.model.fit(training_generator, epochs=epochs)
-        
+    
+    def calculate_loss(self, data):
+        # Reshape tensor so that it is a list of all words.
+        # This is okay because they will all be averaged individually.
+        x = tf.reshape(data, (-1, tf.shape(data)[-1]))
+        # Remove all words that start with 0 from the list.
+        msk = tf.math.not_equal(x[:,0], 0)
+        x = tf.boolean_mask(x, msk, axis=0)
+        # Prevent errors.
+        if tf.equal(tf.size(x), 0):
+            return tf.constant(1.)
+        # Evaluate remaining words with discriminator.
+        print(x)
+        x = self.model(x)
+        # Calculate the mean and present value as loss.
+        return 1 - tf.reduce_mean(x)
+    
     def __call__(self, data):
         return self.model(data)
+        #return self.calculate_loss(data)
