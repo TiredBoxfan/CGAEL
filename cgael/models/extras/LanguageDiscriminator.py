@@ -126,17 +126,19 @@ class LanguageDiscriminatorModel():
         # Reshape tensor so that it is a list of all words.
         # This is okay because they will all be averaged individually.
         x = tf.reshape(data, (-1, tf.shape(data)[-1]))
-        # Remove all words that start with 0 from the list.
-        msk = tf.math.not_equal(x[:,0], 0)
-        x = tf.boolean_mask(x, msk, axis=0)
+        # Remove all words that start with 0 from the list,
+        # but still keep the first words of each sentence.
+        msk_first = tf.equal(tf.math.mod(tf.range(tf.shape(x)[-2]), tf.shape(data)[-2]), 0)
+        msk_nonzero = tf.math.not_equal(x[:,0], 0)
+        msk_join = tf.logical_or(msk_first, msk_nonzero)
+        x = tf.boolean_mask(x, msk_join, axis=0)
         # Prevent errors.
         if tf.equal(tf.size(x), 0):
             return tf.constant(1.)
         # Evaluate remaining words with discriminator.
-        print(x)
         x = self.model(x)
         # Calculate the mean and present value as loss.
-        return 1 - tf.reduce_mean(x)
+        return tf.clip_by_value(1 - tf.reduce_mean(x), 0., 1.)
     
     def __call__(self, data):
         return self.model(data)
